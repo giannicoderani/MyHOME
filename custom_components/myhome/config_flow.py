@@ -374,9 +374,9 @@ class MyhomeFlowHandler(ConfigFlow, domain=DOMAIN):
 class MyhomeOptionsFlowHandler(OptionsFlow):
     """Handle MyHome options."""
 
-    def __init__(self, config_entry):
+    def __init__(self, config_entry: ConfigEntry):
         """Initialize MyHome options flow."""
-        self.config_entry = config_entry
+        self._entry_id = config_entry.entry_id
         self.options = dict(config_entry.options)
         self.data = dict(config_entry.data)
         if CONF_WORKER_COUNT not in self.options:
@@ -414,8 +414,9 @@ class MyhomeOptionsFlowHandler(OptionsFlow):
 
             if not errors:
                 if _data_update:
-                    self.hass.config_entries.async_update_entry(self.config_entry, data=self.data)
-                    await self.hass.config_entries.async_reload(self.config_entry.entry_id)
+                    entry = self.hass.config_entries.async_get_entry(self._entry_id)
+                    self.hass.config_entries.async_update_entry(entry, data=self.data)
+                    await self.hass.config_entries.async_reload(self._entry_id)
 
                 return self.async_create_entry(title="", data=self.options)
 
